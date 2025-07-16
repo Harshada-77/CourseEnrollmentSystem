@@ -3,21 +3,28 @@
 #include <vector>
 #include <string>
 #include <sstream>
+#include <map>
 #include <ctime>
 #include <algorithm>
 
 using namespace std;
 
-// ======= Class Definitions =======
+// ======== Class Definitions ========
+
+// Represents a course with ID, name, and instructor
 class Course {
 public:
     string id, name, instructor;
     Course() {}
     Course(string cid, string cname, string inst)
         : id(cid), name(cname), instructor(inst) {}
+
+    // Convert Course object to string format for saving
     string toString() const {
         return id + "," + name + "," + instructor;
     }
+
+    // Parse a line and return a Course object
     static Course fromString(const string& line) {
         stringstream ss(line);
         string id, name, instructor;
@@ -28,22 +35,28 @@ public:
     }
 };
 
+// Represents a student with ID and name
 class Student {
 public:
     string id, name;
     Student() {}
     Student(string sid, string sname) : id(sid), name(sname) {}
+
+    // Convert Student object to string format for saving
     string toString() const {
         return id + "," + name;
     }
 };
 
-// ======= File Constants =======
+// ======== File Constants ========
+
 const string COURSE_FILE = "courses.txt";
 const string ENROLL_FILE = "enrollments.txt";
 const string STUDENT_FILE = "students.txt";
 
-// ======= Utility Functions =======
+// ======== Utility Functions ========
+
+// Check if course ID already exists
 bool courseExists(const string& cid) {
     ifstream in(COURSE_FILE);
     string line;
@@ -54,6 +67,7 @@ bool courseExists(const string& cid) {
     return false;
 }
 
+// Check if student is already enrolled in the course
 bool isAlreadyEnrolled(const string& sid, const string& cid) {
     ifstream in(ENROLL_FILE);
     string line;
@@ -64,13 +78,15 @@ bool isAlreadyEnrolled(const string& sid, const string& cid) {
     return false;
 }
 
+// Get current date-time string for timestamping
 string getCurrentTime() {
     time_t now = time(0);
     string dt = ctime(&now);
-    dt.erase(remove(dt.begin(), dt.end(), '\n'), dt.end());
+    dt.erase(remove(dt.begin(), dt.end(), '\n'), dt.end());  // Remove newline
     return dt;
 }
 
+// Load all courses from file into a vector
 vector<Course> loadCourses() {
     vector<Course> courses;
     ifstream in(COURSE_FILE);
@@ -81,7 +97,9 @@ vector<Course> loadCourses() {
     return courses;
 }
 
-// ======= Admin Functions =======
+// ======== Admin Functions ========
+
+// Add a new course to the course file
 void addCourse() {
     Course course;
     cout << "Enter Course ID: "; cin >> course.id;
@@ -91,11 +109,13 @@ void addCourse() {
     cin.ignore();
     cout << "Enter Course Name: "; getline(cin, course.name);
     cout << "Enter Instructor Name: "; getline(cin, course.instructor);
+
     ofstream out(COURSE_FILE, ios::app);
     out << course.toString() << endl;
     cout << "✅ Course added successfully.\n";
 }
 
+// Display all available courses
 void viewCourses() {
     auto courses = loadCourses();
     if (courses.empty()) {
@@ -107,6 +127,7 @@ void viewCourses() {
     }
 }
 
+// View all student enrollments
 void viewEnrollments() {
     ifstream in(ENROLL_FILE);
     string line;
@@ -114,16 +135,20 @@ void viewEnrollments() {
     while (getline(in, line)) cout << line << endl;
 }
 
-// ======= Student Functions =======
+// ======== Student Functions ========
+
+// Register a new student and save to file
 void registerStudent(Student& s) {
     cout << "Enter Student ID: "; cin >> s.id;
     cin.ignore();
     cout << "Enter Student Name: "; getline(cin, s.name);
+
     ofstream out(STUDENT_FILE, ios::app);
     out << s.toString() << endl;
     cout << "✅ Student registered successfully.\n";
 }
 
+// Enroll a student into one or more selected courses
 void enrollCourses(const Student& s) {
     auto courses = loadCourses();
     if (courses.empty()) {
@@ -157,6 +182,7 @@ void enrollCourses(const Student& s) {
     cout << "✅ Enrollments saved.\n";
 }
 
+// Show all enrollments for a specific student
 void viewStudentEnrollments(const string& sid) {
     ifstream in(ENROLL_FILE);
     string line;
@@ -171,7 +197,47 @@ void viewStudentEnrollments(const string& sid) {
     if (!found) cout << "⚠️ No enrollments found.\n";
 }
 
-// ======= Menus =======
+// Remove a student from a specific course
+void unenrollCourse(const string& sid) {
+    vector<string> lines, updated;
+    ifstream in(ENROLL_FILE);
+    string line;
+    while (getline(in, line)) lines.push_back(line);
+    in.close();
+
+    cout << "Enter Course ID to unenroll: ";
+    string cid; cin >> cid;
+
+    for (auto& l : lines) {
+        if (l.find(sid) != string::npos && l.find(cid) != string::npos) continue;
+        updated.push_back(l);
+    }
+
+    ofstream out(ENROLL_FILE);
+    for (auto& u : updated) out << u << endl;
+    cout << "✅ Unenrolled from " << cid << ".\n";
+}
+
+// Search available courses by keyword
+void searchCourses() {
+    string keyword;
+    cin.ignore();
+    cout << "🔍 Enter keyword to search: ";
+    getline(cin, keyword);
+    auto courses = loadCourses();
+    bool found = false;
+    for (auto& c : courses) {
+        if (c.name.find(keyword) != string::npos || c.instructor.find(keyword) != string::npos) {
+            cout << c.id << " - " << c.name << " (" << c.instructor << ")\n";
+            found = true;
+        }
+    }
+    if (!found) cout << "❌ No matching courses found.\n";
+}
+
+// ======== Menus ========
+
+// Admin panel menu with access to course and enrollment options
 void adminMenu() {
     int ch;
     do {
@@ -190,6 +256,7 @@ void adminMenu() {
     } while (ch != 0);
 }
 
+// Student panel menu with course enrollment options
 void studentMenu() {
     Student s;
     registerStudent(s);
@@ -197,19 +264,24 @@ void studentMenu() {
     do {
         cout << "\n=== 👨‍🎓 Student Menu ===\n"
              << "1. View Courses\n"
-             << "2. Enroll in Courses\n"
-             << "3. View My Enrollments\n"
+             << "2. Search Courses\n"
+             << "3. Enroll in Courses\n"
+             << "4. View My Enrollments\n"
+             << "5. Unenroll from a Course\n"
              << "0. Back to Main Menu\n"
              << "Choice: ";
         cin >> ch;
         switch (ch) {
             case 1: viewCourses(); break;
-            case 2: enrollCourses(s); break;
-            case 3: viewStudentEnrollments(s.id); break;
+            case 2: searchCourses(); break;
+            case 3: enrollCourses(s); break;
+            case 4: viewStudentEnrollments(s.id); break;
+            case 5: unenrollCourse(s.id); break;
         }
     } while (ch != 0);
 }
 
+// Main entry point of the system
 int main() {
     int choice;
     do {
@@ -226,5 +298,7 @@ int main() {
             default: cout << "❌ Invalid option. Try again.\n";
         }
     } while (choice != 0);
+
     return 0;
 }
+// ======== End of Code ========

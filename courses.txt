@@ -1,4 +1,5 @@
-<<<<<<< HEAD
-=======
-
->>>>>>> 96eebec2418bf116e86248f7b9670846156c2b38
+12,c++,rohan
+54,python,striver
+1,C++,striver
+2,Python,Ritesh
+3,Java,Rita
