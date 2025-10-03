@@ -104,7 +104,7 @@ void addCourse() {
     Course course;
     cout << "Enter Course ID: "; cin >> course.id;
     if (courseExists(course.id)) {
-        cout << "❌ Course ID already exists!\n"; return;
+        cout << " Course ID already exists!\n"; return;
     }
     cin.ignore();
     cout << "Enter Course Name: "; getline(cin, course.name);
@@ -112,16 +112,16 @@ void addCourse() {
 
     ofstream out(COURSE_FILE, ios::app);
     out << course.toString() << endl;
-    cout << "✅ Course added successfully.\n";
+    cout << " Course added successfully.\n";
 }
 
 // Display all available courses
 void viewCourses() {
     auto courses = loadCourses();
     if (courses.empty()) {
-        cout << "⚠️ No courses found.\n"; return;
+        cout << " No courses found.\n"; return;
     }
-    cout << "\n📚 Available Courses:\n";
+    cout << "\n Available Courses:\n";
     for (auto& c : courses) {
         cout << "ID: " << c.id << ", Name: " << c.name << ", Instructor: " << c.instructor << endl;
     }
@@ -131,7 +131,7 @@ void viewCourses() {
 void viewEnrollments() {
     ifstream in(ENROLL_FILE);
     string line;
-    cout << "\n📒 All Enrollments:\n";
+    cout << "\n All Enrollments:\n";
     while (getline(in, line)) cout << line << endl;
 }
 
@@ -145,17 +145,17 @@ void registerStudent(Student& s) {
 
     ofstream out(STUDENT_FILE, ios::app);
     out << s.toString() << endl;
-    cout << "✅ Student registered successfully.\n";
+    cout << " Student registered successfully.\n";
 }
 
 // Enroll a student into one or more selected courses
 void enrollCourses(const Student& s) {
     auto courses = loadCourses();
     if (courses.empty()) {
-        cout << "⚠️ No courses available.\n"; return;
+        cout << " No courses available.\n"; return;
     }
 
-    cout << "\n📚 Course List:\n";
+    cout << "\n Course List:\n";
     for (size_t i = 0; i < courses.size(); ++i) {
         cout << i + 1 << ". " << courses[i].name << " (" << courses[i].id << ")\n";
     }
@@ -170,16 +170,16 @@ void enrollCourses(const Student& s) {
             if (!isAlreadyEnrolled(s.id, cid)) {
                 enrolled.push_back(cid);
             } else {
-                cout << "⚠️ Already enrolled in " << cid << "\n";
+                cout << " Already enrolled in " << cid << "\n";
             }
-        } else cout << "❌ Invalid choice.\n";
+        } else cout << " Invalid choice.\n";
     }
 
     ofstream out(ENROLL_FILE, ios::app);
     for (auto& cid : enrolled) {
         out << s.id << " (" << s.name << ") → " << cid << " @ " << getCurrentTime() << endl;
     }
-    cout << "✅ Enrollments saved.\n";
+    cout << " Enrollments saved.\n";
 }
 
 // Show all enrollments for a specific student
@@ -187,14 +187,14 @@ void viewStudentEnrollments(const string& sid) {
     ifstream in(ENROLL_FILE);
     string line;
     bool found = false;
-    cout << "\n📖 Your Enrollments:\n";
+    cout << "\n Your Enrollments:\n";
     while (getline(in, line)) {
         if (line.find(sid) != string::npos) {
             cout << line << endl;
             found = true;
         }
     }
-    if (!found) cout << "⚠️ No enrollments found.\n";
+    if (!found) cout << " No enrollments found.\n";
 }
 
 // Remove a student from a specific course
@@ -215,7 +215,7 @@ void unenrollCourse(const string& sid) {
 
     ofstream out(ENROLL_FILE);
     for (auto& u : updated) out << u << endl;
-    cout << "✅ Unenrolled from " << cid << ".\n";
+    cout << " Unenrolled from " << cid << ".\n";
 }
 
 // Search available courses by keyword
@@ -232,7 +232,7 @@ void searchCourses() {
             found = true;
         }
     }
-    if (!found) cout << "❌ No matching courses found.\n";
+    if (!found) cout << " No matching courses found.\n";
 }
 
 // ======== Menus ========
@@ -241,7 +241,7 @@ void searchCourses() {
 void adminMenu() {
     int ch;
     do {
-        cout << "\n=== 👩‍💼 Admin Menu ===\n"
+        cout << "\n===  Admin Menu ===\n"
              << "1. Add Course\n"
              << "2. View All Courses\n"
              << "3. View All Enrollments\n"
@@ -262,7 +262,7 @@ void studentMenu() {
     registerStudent(s);
     int ch;
     do {
-        cout << "\n=== 👨‍🎓 Student Menu ===\n"
+        cout << "\n===  Student Menu ===\n"
              << "1. View Courses\n"
              << "2. Search Courses\n"
              << "3. Enroll in Courses\n"
@@ -285,7 +285,7 @@ void studentMenu() {
 int main() {
     int choice;
     do {
-        cout << "\n=== 🎓 Course Enrollment System ===\n"
+        cout << "\n===  Course Enrollment System ===\n"
              << "1. Admin Panel\n"
              << "2. Student Panel\n"
              << "0. Exit\n"
@@ -294,8 +294,8 @@ int main() {
         switch (choice) {
             case 1: adminMenu(); break;
             case 2: studentMenu(); break;
-            case 0: cout << "👋 Exiting. Goodbye!\n"; break;
-            default: cout << "❌ Invalid option. Try again.\n";
+            case 0: cout << " Exiting. Goodbye!\n"; break;
+            default: cout << " Invalid option. Try again.\n";
         }
     } while (choice != 0);
 
